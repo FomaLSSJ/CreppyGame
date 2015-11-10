@@ -1,12 +1,12 @@
 package ;
 
 import flixel.addons.effects.FlxWaveSprite;
-import FlxSpriteExt;
 import flash.display.BlendMode;
 import flixel.FlxBasic;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
+import flixel.util.FlxSpriteUtil;
 import flixel.FlxState;
 import flixel.group.FlxGroup;
 import flixel.text.FlxText;
@@ -23,18 +23,20 @@ class PlayState extends FlxState
 	
 	private var skipButton:FlxButton;
 	private var background:FlxSprite;
-	private var darkness:FlxSpriteExt;
+	private var darkness:FlxSprite;
 	private var light:Light;
 	private var player:Player;
 	private var timer:FlxTimer;
 	private var wall:FlxTileblock;
 	private var keyPress:Bool;
 	
+	private var roomArray:Array<Dynamic> = [];
 	private var lampArray:Array<Dynamic> = [];
 	private var wallArray:Array<Dynamic> = [];
 	private var doorArray:Array<Dynamic> = [];
 	private var eventArray:Array<Dynamic> = [];
 	
+	private var roomGroup:FlxGroup = new FlxGroup();
 	private var lampGroup:FlxGroup = new FlxGroup();
 	private var wallGroup:FlxGroup = new FlxGroup();
 	private var doorGroup:FlxGroup = new FlxGroup();
@@ -97,10 +99,10 @@ class PlayState extends FlxState
 			}
 			
 			if (player.x < -100)
-				FlxG.switchState(new GameOver());
+				onDirections("left", roomArray);
 			
 			if (player.x > FlxG.width + 100)
-				FlxG.camera.fade(FlxColor.BLACK, .33, false, function() { FlxG.switchState(new MenuState()); } );
+				onDirections("right", roomArray);
 		}
 	}
 	
@@ -109,7 +111,7 @@ class PlayState extends FlxState
 		super.draw();
 		
 		if (darkness != null)
-			darkness.fill(0xff000000);
+			FlxSpriteUtil.fill(darkness, 0xff000000);
 	}
 	
 	private function introComplete():Void
@@ -129,7 +131,7 @@ class PlayState extends FlxState
 		background = new FlxSprite(0, 0);
 		background.y = 68;
 		
-		darkness = new FlxSpriteExt(0, 0);
+		darkness = new FlxSprite(0, 0);
 		darkness.makeGraphic(FlxG.width, FlxG.height, 0xff000000);
 		darkness.scrollFactor.set(0, 0);
 		darkness.blend = BlendMode.MULTIPLY;
@@ -140,17 +142,44 @@ class PlayState extends FlxState
 		player = new Player(5);
 		
 		// Room00
+		roomArray.push(new Room("room00", AssetPaths.room00__png, [0, 0, 320, 240], function()
+		{
+			FlxG.switchState(new GameOver());
+		}, function()
+		{
+			setRoom("room03", 0);
+		}));
 		lampArray.push(new Lamp(darkness, 153, "room00"));
 		lampArray.push(new Lamp(darkness, 220, "room00"));
-		doorArray.push(new Door(50, "room01", "room00", 125));
+		doorArray.push(new Door(50, "room00", "room01", 125));
+		doorArray.push(new Door(125, "room00", "room02", 125));
 		eventArray.push(new Event(300, false, "assets/sounds/sfxChaseDone.wav", null, "room00"));
 		// Room01
+		roomArray.push(new Room("room01", AssetPaths.room01__png, [0, 0, 480, 240]));
 		wallArray.push(new Wall(25, 10, "room01"));
 		wallArray.push(new Wall(285, 10, "room01"));
 		lampArray.push(new Lamp(darkness, 135, "room01"));
-		doorArray.push(new Door(120, "room00", "room01", 55));
+		doorArray.push(new Door(120, "room01", "room00", 55));
 		eventArray.push(new Event(220, true, "assets/sounds/sfxFadein.wav", "assets/images/doge.png", "room01"));
+		// Room02
+		roomArray.push(new Room("room02", AssetPaths.room01__png, [0, 0, 320, 240]));
+		wallArray.push(new Wall(25, 10, "room02"));
+		wallArray.push(new Wall(285, 10, "room02"));
+		lampArray.push(new Lamp(darkness, 205, "room02"));
+		doorArray.push(new Door(120, "room02", "room00", 125));
+		// Room03
+		roomArray.push(new Room("room03", AssetPaths.room00__png, [0, 0, 320, 240], function()
+		{
+			setRoom("room00", 310);
+		}, function()
+		{
+			FlxG.camera.fade(FlxColor.BLACK, .33, false, function() { FlxG.switchState(new MenuState()); } );
+		}));
+		lampArray.push(new Lamp(darkness, 55, "room03"));
+		lampArray.push(new Lamp(darkness, 245, "room03"));
+		eventArray.push(new Event(230, true, "assets/sounds/sfxChaseDone.wav", null, "room03"));
 		
+		setGroup(roomArray, roomGroup);
 		setGroup(wallArray, wallGroup);
 		setGroup(lampArray, lampGroup);
 		setGroup(doorArray, doorGroup);
@@ -158,7 +187,7 @@ class PlayState extends FlxState
 		
 		setRoom("room00", 5);
 		
-		add(background);
+		add(roomGroup);
 		add(doorGroup);
 		add(wallGroup);
 		add(eventGroup);
@@ -170,25 +199,33 @@ class PlayState extends FlxState
 		FlxG.camera.follow(player, FlxCamera.STYLE_PLATFORMER);
 	}
 	
+	private function onDirections(dir:String, array:Array<Dynamic>)
+	{
+		for (i in 0...array.length)
+		{
+			if (array[i].room == ROOM)
+			{
+				if (dir == "left") {
+					array[i].callLeft();
+				}
+				else
+				{
+					array[i].callRight();
+				}
+			}
+		}
+	}
+	
 	private function setRoom(Room:String, Position:Int):Void
 	{
 		ROOM = Room;
 		player.x = Position;
 		
+		setObjects(roomArray);
 		setObjects(wallArray);
 		setObjects(lampArray);
 		setObjects(doorArray);
 		setObjects(eventArray);
-		
-		switch (ROOM)
-		{
-			case "room00":
-				FlxG.camera.setBounds(0, 0, 320, 240);
-				background.loadGraphic(AssetPaths.room00__png);
-			case "room01":
-				FlxG.camera.setBounds(0, 0, 480, 240);
-				background.loadGraphic(AssetPaths.room01__png);
-		}
 		
 		FlxG.camera.fade(FlxColor.BLACK, 0.33, true);
 	}
@@ -198,7 +235,13 @@ class PlayState extends FlxState
 		for (i in 0...array.length)
 		{
 			if (array[i].room == ROOM)
+			{
 				array[i].enabled(true);
+				
+				if (Std.is(array[i], Room)) {
+					FlxG.camera.setBounds(array[i].bounds[0], array[i].bounds[1], array[i].bounds[2], array[i].bounds[3]);
+				}
+			}
 			else
 				array[i].enabled(false);
 		}

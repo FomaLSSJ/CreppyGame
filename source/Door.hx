@@ -12,7 +12,7 @@ class Door extends FlxSprite
 	public var location:String;
 	public var position:Int;
 	
-	public function new(X:Float, Location:String, Room:String, Position:Int):Void
+	public function new(X:Float, Room:String, Location:String, Position:Int):Void
 	{
 		super(X, 82, DOOR_IDLE);
 		
