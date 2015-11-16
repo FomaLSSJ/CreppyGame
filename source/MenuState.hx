@@ -17,7 +17,7 @@ class MenuState extends FlxState
 		FlxG.camera.fade(FlxColor.BLACK, 0.33, true);
 		FlxG.mouse.visible = true;
 		
-		var verNum:FlxText = new FlxText(0, 0, 0, "ver. 0.8.6");
+		var verNum:FlxText = new FlxText(0, 0, 0, "ver. 0.8.9");
 		verNum.x = FlxG.width - (verNum.width + 8);
 		verNum.y = 8;
 		

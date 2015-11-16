@@ -24,8 +24,10 @@ class PlayState extends FlxState
 	private var skipButton:FlxButton;
 	private var background:FlxSprite;
 	private var darkness:FlxSprite;
-	private var light:Light;
+	private var inventory:Inventory;
 	private var player:Player;
+	private var light:Light;
+	private var message:Message;
 	private var timer:FlxTimer;
 	private var wall:FlxTileblock;
 	private var keyPress:Bool;
@@ -35,12 +37,14 @@ class PlayState extends FlxState
 	private var wallArray:Array<Dynamic> = [];
 	private var doorArray:Array<Dynamic> = [];
 	private var eventArray:Array<Dynamic> = [];
+	private var itemArray:Array<Dynamic> = [];
 	
 	private var roomGroup:FlxGroup = new FlxGroup();
 	private var lampGroup:FlxGroup = new FlxGroup();
 	private var wallGroup:FlxGroup = new FlxGroup();
 	private var doorGroup:FlxGroup = new FlxGroup();
 	private var eventGroup:FlxGroup = new FlxGroup();
+	private var itemGroup:FlxGroup = new FlxGroup();
 	
 	override public function create():Void
 	{
@@ -78,14 +82,9 @@ class PlayState extends FlxState
 		FlxG.collide(player, wallGroup);
 		FlxG.overlap(player, doorGroup, activeDoor);
 		FlxG.overlap(player, eventGroup, activeEvent);
+		FlxG.overlap(player, itemGroup, activeItem);
 		
 		keyPress = false;
-		
-		if (light != null)
-		{
-			light.x = player.x + (player.width / 2);
-			light.y = player.y + (player.height / 2);
-		}
 		
 		if (player != null)
 		{
@@ -103,6 +102,17 @@ class PlayState extends FlxState
 			
 			if (player.x > FlxG.width + 100)
 				onDirections("right", roomArray);
+		}
+		
+		if (light != null)
+		{
+			light.x = player.x + (player.width / 2);
+			light.y = player.y + (player.height / 2);
+		}
+		
+		if (message != null)
+		{
+			message.pos(player.x + (player.width / 2), player.y + (player.height / 2));
 		}
 	}
 	
@@ -137,9 +147,14 @@ class PlayState extends FlxState
 		darkness.blend = BlendMode.MULTIPLY;
 		darkness.alpha = 0.985;
 		
-		light = new Light(darkness, 0, 0);
+		inventory = new Inventory();
+		//inventory.addItem(new Item(1, "Key", null));
 		
 		player = new Player(5);
+		
+		light = new Light(darkness, 0, 0);
+		
+		message = new Message();
 		
 		// Room00
 		roomArray.push(new Room("room00", AssetPaths.room00__png, [0, 0, 320, 240], function()
@@ -152,7 +167,7 @@ class PlayState extends FlxState
 		lampArray.push(new Lamp(darkness, 153, "room00"));
 		lampArray.push(new Lamp(darkness, 220, "room00"));
 		doorArray.push(new Door(50, "room00", "room01", 125));
-		doorArray.push(new Door(125, "room00", "room02", 125));
+		doorArray.push(new Door(125, "room00", "room02", 125, true, 1));
 		eventArray.push(new Event(300, false, "assets/sounds/sfxChaseDone.wav", null, "room00"));
 		// Room01
 		roomArray.push(new Room("room01", AssetPaths.room01__png, [0, 0, 480, 240]));
@@ -176,14 +191,15 @@ class PlayState extends FlxState
 			FlxG.camera.fade(FlxColor.BLACK, .33, false, function() { FlxG.switchState(new MenuState()); } );
 		}));
 		lampArray.push(new Lamp(darkness, 55, "room03"));
-		lampArray.push(new Lamp(darkness, 245, "room03"));
 		eventArray.push(new Event(230, true, "assets/sounds/sfxChaseDone.wav", null, "room03"));
+		itemArray.push(new Item(1, "Key", AssetPaths.shine__png, "room03", 120, 125));
 		
 		setGroup(roomArray, roomGroup);
 		setGroup(wallArray, wallGroup);
 		setGroup(lampArray, lampGroup);
 		setGroup(doorArray, doorGroup);
 		setGroup(eventArray, eventGroup);
+		setGroup(itemArray, itemGroup);
 		
 		setRoom("room00", 5);
 		
@@ -191,8 +207,10 @@ class PlayState extends FlxState
 		add(doorGroup);
 		add(wallGroup);
 		add(eventGroup);
+		add(itemGroup);
 		add(player);
 		add(light);
+		add(message);
 		add(lampGroup);
 		add(darkness);
 		
@@ -226,6 +244,7 @@ class PlayState extends FlxState
 		setObjects(lampArray);
 		setObjects(doorArray);
 		setObjects(eventArray);
+		setObjects(itemArray);
 		
 		FlxG.camera.fade(FlxColor.BLACK, 0.33, true);
 	}
@@ -254,7 +273,23 @@ class PlayState extends FlxState
 			group.add(array[i]);
 		}
 	}
-	
+
+	private function activeItem(p:Player, i:Item):Void
+	{
+		if (p.overlaps(i) && !p.movingDisable && i.active)
+		{
+			if (FlxG.keys.anyJustPressed(["DOWN"]))
+			{
+				if (!keyPress)
+				{
+					message.popup(i.name);
+					inventory.addItem(i);
+					i.destroy();
+				}
+			}
+		}
+	}
+
 	private function activeDoor(p:Player, d:Door):Void
 	{
 		if (p.overlaps(d) && !p.movingDisable && d.active)
@@ -262,7 +297,22 @@ class PlayState extends FlxState
 			if (FlxG.keys.anyJustPressed(["UP"]))
 			{
 				if (!keyPress)
-					setRoom(d.location, d.position);
+					if (d.closed)
+					{
+						if (inventory.getItem(d.key))
+						{
+							message.popup("Open");
+							d.open();
+						}
+						else
+						{
+							message.popup("Closed");
+						}
+					}
+					else
+					{
+						setRoom(d.location, d.position);
+					}
 				
 				keyPress = true;
 			}
