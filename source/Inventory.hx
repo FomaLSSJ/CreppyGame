@@ -26,4 +26,16 @@ class Inventory
 		
 		return false;
 	}
+
+	public function getItemsName():String
+	{
+		var items:Array<String> = new Array();
+		
+		for (i in 0...inventory.length)
+		{
+			items.push(inventory[i].name);
+		}
+		
+		return items.join(",");
+	}
 }

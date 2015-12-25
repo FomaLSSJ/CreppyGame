@@ -114,6 +114,17 @@ class PlayState extends FlxState
 		{
 			message.pos(player.x + (player.width / 2), player.y + (player.height / 2));
 		}
+		
+		if (player != null && inventory != null && message != null)
+		{
+			if (!keyPress && !player.movingDisable)
+			{
+				if (FlxG.keys.anyJustPressed(["i", "I", "TAB"]))
+				{
+					message.popup("I have " + inventory.getItemsName());
+				}
+			}
+		}
 	}
 	
 	override public function draw():Void
@@ -182,6 +193,7 @@ class PlayState extends FlxState
 		wallArray.push(new Wall(285, 10, "room02"));
 		lampArray.push(new Lamp(darkness, 205, "room02"));
 		doorArray.push(new Door(120, "room02", "room00", 125));
+		itemArray.push(new Item(2, "Rusty Key", AssetPaths.shine__png, "room02", 120, 125));
 		// Room03
 		roomArray.push(new Room("room03", AssetPaths.room00__png, [0, 0, 320, 240], function()
 		{
@@ -282,7 +294,7 @@ class PlayState extends FlxState
 			{
 				if (!keyPress)
 				{
-					message.popup(i.name);
+					message.popup("I found the " + i.name);
 					inventory.addItem(i);
 					i.destroy();
 				}

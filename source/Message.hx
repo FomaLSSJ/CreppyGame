@@ -19,14 +19,11 @@ class Message extends FlxTypedGroup<Dynamic>
 		super();
 		
 		this.background = new FlxSprite(0, 0);
-		this.background.makeGraphic(64, 14, FlxColor.BLACK);
 		this.background.alpha = 0.5;
 		add(this.background);
 		
 		this.message = new FlxText(0, 0, 64, "");
 		add(this.message);
-		
-		this.background.y = this.message.y = 80;
 		
 		this.visible = false;
 	}
@@ -43,6 +40,12 @@ class Message extends FlxTypedGroup<Dynamic>
 
 	public function popup(Text:String, Time:Float = 1.5):Void
 	{
+		var lines:Int = Std.int(Text.length / 10) + 1;
+		trace("Text:" + Text.length + "\nLines:" +lines);
+		
+		this.background.makeGraphic(Std.int(message.width), Std.int(message.height), FlxColor.BLACK);
+		this.background.y = this.message.y = 100 - (background.height);
+		
 		this.message.text = Text;
 		this.timer = new FlxTimer(Time, timerComplite);
 		
