@@ -4,7 +4,7 @@ import flixel.FlxSprite;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
-import flixel.group.FlxTypedGroup;
+import flixel.group.FlxGroup.FlxTypedGroup;
 
 class Message extends FlxTypedGroup<Dynamic>
 {
@@ -28,7 +28,7 @@ class Message extends FlxTypedGroup<Dynamic>
 		this.visible = false;
 	}
 
-	override public function update():Void
+	override public function update(elapsed:Float):Void
 	{
 		this.background.x = this.message.x = this.pos_x - this.background.width / 2;
 	}
@@ -47,7 +47,7 @@ class Message extends FlxTypedGroup<Dynamic>
 		this.background.y = this.message.y = 100 - (background.height);
 		
 		this.message.text = Text;
-		this.timer = new FlxTimer(Time, timerComplite);
+		this.timer = new FlxTimer().start(Time, timerComplite);
 		
 		this.visible = true;
 	}

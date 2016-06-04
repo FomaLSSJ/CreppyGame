@@ -2,7 +2,7 @@ package ;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.group.FlxTypedGroup;
+import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
@@ -47,7 +47,7 @@ class TextDark extends FlxTypedGroup<FlxSprite>
 		super.destroy();
 	}
 	
-	override public function update():Void
+	override public function update(elapsed:Float):Void
 	{
 		if (index + 1 > messages.length)
 			callback();
@@ -56,7 +56,7 @@ class TextDark extends FlxTypedGroup<FlxSprite>
 	private function setText():Void
 	{
 		FlxG.camera.fade(FlxColor.BLACK, .33, false);
-		timer = new FlxTimer(this.time, timerComplete);
+		timer = new FlxTimer().start(this.time, timerComplete);
 		
 		message.text = messages[index];
 	}

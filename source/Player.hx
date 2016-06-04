@@ -12,6 +12,7 @@ class Player extends FlxSprite
 	
 	public var movingDisable:Bool;
 	public var wallTouching:Bool;
+	public var blured:Bool;
 	
 	//private var sfxStep:FlxSound = new FlxSound();
 
@@ -41,9 +42,9 @@ class Player extends FlxSprite
 		//sfxStep.destroy();
 	}
 	
-	override public function update():Void
+	override public function update(elapsed:Float):Void
 	{
-		super.update();
+		super.update(elapsed);
 		
 		controls();
 		animate();

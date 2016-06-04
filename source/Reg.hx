@@ -9,6 +9,7 @@ import flixel.util.FlxSave;
  */
 class Reg
 {
+	public static var player:Player = null;
 	/**
 	 * Generic levels Array that can be used for cross-state stuff.
 	 * Example usage: Storing the levels of a platformer.

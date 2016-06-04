@@ -3,7 +3,7 @@ package ;
 import flash.display.BlendMode;
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.util.FlxPoint;
+import flixel.math.FlxPoint;
 
 class Light extends FlxSprite
 {	
@@ -19,7 +19,7 @@ class Light extends FlxSprite
 	
 	override public function draw():Void
 	{
-		var screenXY:FlxPoint = getScreenXY();
+		var screenXY:FlxPoint = getScreenPosition();
 		
 		darkness.stamp(this, Std.int(screenXY.x - this.width / 2), Std.int(screenXY.y - this.height / 2));
 	}

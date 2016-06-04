@@ -20,7 +20,7 @@ class GameOver extends FlxState
 		titleText.x = (FlxG.width - titleText.width) / 2;
 		titleText.y = (FlxG.height - titleText.height) / 2 - 32;
 		titleText.setFormat(null, 32, FlxColor.BLACK);
-		titleText.setBorderStyle(FlxText.BORDER_OUTLINE, FlxColor.WHITE, 1);
+		titleText.setBorderStyle(FlxTextBorderStyle.OUTLINE, FlxColor.WHITE, 1);
 		
 		var hintText:FlxText = new FlxText(0, 0, 0, "You fucking pussy!");
 		hintText.x = (FlxG.width - hintText.width) / 2;

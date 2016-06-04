@@ -1,18 +1,19 @@
 package ;
 
-import flixel.addons.effects.FlxWaveSprite;
+import flash.geom.Point;
 import flash.display.BlendMode;
 import flixel.FlxBasic;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
+import flixel.tweens.FlxTween;
 import flixel.util.FlxSpriteUtil;
 import flixel.FlxState;
 import flixel.group.FlxGroup;
 import flixel.text.FlxText;
 import flixel.tile.FlxTileblock;
 import flixel.ui.FlxButton;
-import flixel.util.FlxMath;
+import flixel.math.FlxMath;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import flixel.FlxCamera;
@@ -31,6 +32,7 @@ class PlayState extends FlxState
 	private var timer:FlxTimer;
 	private var wall:FlxTileblock;
 	private var keyPress:Bool;
+	private var effect:Effect;
 	
 	private var roomArray:Array<Dynamic> = [];
 	private var lampArray:Array<Dynamic> = [];
@@ -38,6 +40,7 @@ class PlayState extends FlxState
 	private var doorArray:Array<Dynamic> = [];
 	private var eventArray:Array<Dynamic> = [];
 	private var itemArray:Array<Dynamic> = [];
+	private var spriteArray:Array<Dynamic> = [];
 	
 	private var roomGroup:FlxGroup = new FlxGroup();
 	private var lampGroup:FlxGroup = new FlxGroup();
@@ -45,6 +48,7 @@ class PlayState extends FlxState
 	private var doorGroup:FlxGroup = new FlxGroup();
 	private var eventGroup:FlxGroup = new FlxGroup();
 	private var itemGroup:FlxGroup = new FlxGroup();
+	private var spriteGroup:FlxGroup = new FlxGroup();
 	
 	override public function create():Void
 	{
@@ -57,7 +61,12 @@ class PlayState extends FlxState
 		blank.scrollFactor.set(0, 0);
 		add(blank);
 		
-		var intro:TextDark = new TextDark(['Foma:\n-"Urf"', 'Rocketko:\n-"Urf"', 'DrTwiSteD:\n-"Urf"', 'Urf:\n-"Huyurf"'], introComplete, 3);
+		var intro:TextDark = new TextDark([
+			'Foma:\n-"Urf"',
+			'Rocketko:\n-"Urf"',
+			'DrTwiSteD:\n-"Urf"',
+			'Urf:\n-"Huyurf"'
+		], introComplete, 3);
 		add(intro);
 		
 		skipButton = new FlxButton(0, 0, "Skip", function ()
@@ -75,49 +84,50 @@ class PlayState extends FlxState
 		super.destroy();
 	}
 
-	override public function update():Void
+	override public function update(elapsed:Float):Void
 	{
-		super.update();
+		super.update(elapsed);
 		
-		FlxG.collide(player, wallGroup);
-		FlxG.overlap(player, doorGroup, activeDoor);
-		FlxG.overlap(player, eventGroup, activeEvent);
-		FlxG.overlap(player, itemGroup, activeItem);
+		FlxG.collide(Reg.player, wallGroup);
+		FlxG.overlap(Reg.player, doorGroup, activeDoor);
+		FlxG.overlap(Reg.player, eventGroup, activeEvent);
+		FlxG.overlap(Reg.player, itemGroup, activeItem);
+		FlxG.overlap(Reg.player, spriteGroup, activeSprite);
 		
 		keyPress = false;
 		
-		if (player != null)
+		if (Reg.player != null)
 		{
 			for (i in 0...wallGroup.length)
 			{
 				if (wallGroup.members[i].active)
 				{
-					if (player.overlapsAt(player.x - 1, player.y, wallGroup.members[i]) || player.overlapsAt(player.x + 1, player.y, wallGroup.members[i]))
-						player.wallTouching = true;
+					if (Reg.player.overlapsAt(Reg.player.x - 1, Reg.player.y, wallGroup.members[i]) || Reg.player.overlapsAt(Reg.player.x + 1, Reg.player.y, wallGroup.members[i]))
+						Reg.player.wallTouching = true;
 				}
 			}
 			
-			if (player.x < -100)
+			if (Reg.player.x < -100)
 				onDirections("left", roomArray);
 			
-			if (player.x > FlxG.width + 100)
+			if (Reg.player.x > FlxG.width + 100)
 				onDirections("right", roomArray);
 		}
 		
 		if (light != null)
 		{
-			light.x = player.x + (player.width / 2);
-			light.y = player.y + (player.height / 2);
+			light.x = Reg.player.x + (Reg.player.width / 2);
+			light.y = Reg.player.y + (Reg.player.height / 2);
 		}
 		
 		if (message != null)
 		{
-			message.pos(player.x + (player.width / 2), player.y + (player.height / 2));
+			message.pos(Reg.player.x + (Reg.player.width / 2), Reg.player.y + (Reg.player.height / 2));
 		}
 		
-		if (player != null && inventory != null && message != null)
+		if (Reg.player != null && inventory != null && message != null)
 		{
-			if (!keyPress && !player.movingDisable)
+			if (!keyPress && !Reg.player.movingDisable)
 			{
 				if (FlxG.keys.anyJustPressed(["i", "I", "TAB"]))
 				{
@@ -161,11 +171,12 @@ class PlayState extends FlxState
 		inventory = new Inventory();
 		//inventory.addItem(new Item(1, "Key", null));
 		
-		player = new Player(5);
+		Reg.player = new Player(5);
 		
 		light = new Light(darkness, 0, 0);
 		
 		message = new Message();
+		effect = new Effect();
 		
 		// Room00
 		roomArray.push(new Room("room00", AssetPaths.room00__png, [0, 0, 320, 240], function()
@@ -180,6 +191,8 @@ class PlayState extends FlxState
 		doorArray.push(new Door(50, "room00", "room01", 125));
 		doorArray.push(new Door(125, "room00", "room02", 125, true, 1));
 		eventArray.push(new Event(300, false, "assets/sounds/sfxChaseDone.wav", null, "room00"));
+		spriteArray.push(new Sprite(130, 90, AssetPaths.fog_smoke__png, "room00"));
+		spriteArray.push(new Sprite(180, 90, AssetPaths.fog_smoke__png, "room00"));
 		// Room01
 		roomArray.push(new Room("room01", AssetPaths.room01__png, [0, 0, 480, 240]));
 		wallArray.push(new Wall(25, 10, "room01"));
@@ -212,21 +225,24 @@ class PlayState extends FlxState
 		setGroup(doorArray, doorGroup);
 		setGroup(eventArray, eventGroup);
 		setGroup(itemArray, itemGroup);
-		
-		setRoom("room00", 5);
+		setGroup(spriteArray, spriteGroup);
 		
 		add(roomGroup);
 		add(doorGroup);
 		add(wallGroup);
 		add(eventGroup);
 		add(itemGroup);
-		add(player);
+		add(spriteGroup);
+		add(Reg.player);
 		add(light);
 		add(message);
 		add(lampGroup);
 		add(darkness);
+		add(effect);
 		
-		FlxG.camera.follow(player, FlxCamera.STYLE_PLATFORMER);
+		setRoom("room00", 5);
+		
+		FlxG.camera.follow(Reg.player, FlxCameraFollowStyle.PLATFORMER);
 	}
 	
 	private function onDirections(dir:String, array:Array<Dynamic>)
@@ -249,7 +265,7 @@ class PlayState extends FlxState
 	private function setRoom(Room:String, Position:Int):Void
 	{
 		ROOM = Room;
-		player.x = Position;
+		Reg.player.x = Position;
 		
 		setObjects(roomArray);
 		setObjects(wallArray);
@@ -257,6 +273,7 @@ class PlayState extends FlxState
 		setObjects(doorArray);
 		setObjects(eventArray);
 		setObjects(itemArray);
+		setObjects(spriteArray);
 		
 		FlxG.camera.fade(FlxColor.BLACK, 0.33, true);
 	}
@@ -270,7 +287,7 @@ class PlayState extends FlxState
 				array[i].enabled(true);
 				
 				if (Std.is(array[i], Room)) {
-					FlxG.camera.setBounds(array[i].bounds[0], array[i].bounds[1], array[i].bounds[2], array[i].bounds[3]);
+					FlxG.camera.setScrollBoundsRect(array[i].bounds[0], array[i].bounds[1], array[i].bounds[2], array[i].bounds[3]);
 				}
 			}
 			else
@@ -342,8 +359,8 @@ class PlayState extends FlxState
 			if (e.picture != null)
 			{
 				var pic:FlxSprite = new FlxSprite(0, 0, e.picture);
-				var timerStart:FlxTimer = new FlxTimer(0.3, function(e:FlxTimer) { add(pic); }, 1);
-				var timerEnd:FlxTimer = new FlxTimer(0.4, function(e:FlxTimer) { pic.destroy(); }, 1);
+				var timerStart:FlxTimer = new FlxTimer().start(0.3, function(e:FlxTimer) { add(pic); }, 1);
+				var timerEnd:FlxTimer = new FlxTimer().start(0.4, function(e:FlxTimer) { pic.destroy(); }, 1);
 				pic.x = (FlxG.width - pic.width) / 2;
 				pic.y = (FlxG.height - pic.height) / 2;
 				pic.scrollFactor.set(0, 0);
@@ -354,6 +371,29 @@ class PlayState extends FlxState
 			{
 				e.active = false;
 				FlxG.sound.play(e.sound, 1, false, true, e.sfxComplete);
+			}
+			
+			if (e.callback != null)
+			{
+				e.callCallback();
+			}
+		}
+	}
+	
+	private function activeSprite(p:Player, s:Sprite):Void
+	{
+		if (p.overlaps(s) && s.active)
+		{
+			if (!p.blured)
+			{
+				effect.blur(3, 3, 1);
+			}
+		}
+		else
+		{
+			if (p.blured)
+			{
+				effect.blur(3, 3, 2);
 			}
 		}
 	}

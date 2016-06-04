@@ -5,7 +5,7 @@ import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.text.FlxText;
 import flixel.ui.FlxButton;
-import flixel.util.FlxMath;
+import flixel.math.FlxMath;
 import flixel.util.FlxColor;
 
 class MenuState extends FlxState
@@ -17,7 +17,7 @@ class MenuState extends FlxState
 		FlxG.camera.fade(FlxColor.BLACK, 0.33, true);
 		FlxG.mouse.visible = true;
 		
-		var verNum:FlxText = new FlxText(0, 0, 0, "ver. 0.8.9");
+		var verNum:FlxText = new FlxText(0, 0, 0, "ver. 0.9.0");
 		verNum.x = FlxG.width - (verNum.width + 8);
 		verNum.y = 8;
 		
@@ -25,7 +25,7 @@ class MenuState extends FlxState
 		titleText.x = (FlxG.width - titleText.width) / 2;
 		titleText.y = (FlxG.height - titleText.height) / 2 - 32;
 		titleText.setFormat(null, 32, FlxColor.BLACK);
-		titleText.setBorderStyle(FlxText.BORDER_OUTLINE, FlxColor.WHITE, 1);
+		titleText.setBorderStyle(FlxTextBorderStyle.OUTLINE, FlxColor.WHITE, 1);
 		
 		var hintText:FlxText = new FlxText(0, 0, 0, "Wow. Such harror, much survivar!");
 		hintText.x = (FlxG.width - hintText.width) / 2;
@@ -46,9 +46,9 @@ class MenuState extends FlxState
 		super.destroy();
 	}
 
-	override public function update():Void
+	override public function update(elapsed:Float):Void
 	{
-		super.update();
+		super.update(elapsed);
 	}
 	
 	private function onPlay():Void

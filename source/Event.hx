@@ -11,8 +11,9 @@ class Event extends FlxSprite
 	public var repeat:Bool;
 	public var room:String;
 	public var currentRoom:String;
+	public var callback:Void->Void = null;
 	
-	public function new(X:Float, Repeat:Bool, Sound:String, Picture:String, Room:String):Void
+	public function new(X:Float, Repeat:Bool, Sound:String, Picture:String, Room:String, ?Callback:Void->Void):Void
 	{
 		super(X, 0);
 		
@@ -20,8 +21,9 @@ class Event extends FlxSprite
 		sound = Sound;
 		picture = Picture;
 		room = Room;
+		callback = Callback;
 		
-		makeGraphic(8, FlxG.height, FlxColor.FOREST_GREEN);
+		makeGraphic(8, FlxG.height, FlxColor.GREEN);
 		alpha = 0;
 	}
 	
@@ -41,6 +43,11 @@ class Event extends FlxSprite
 			active = repeat;
 		else
 			active = false;
+	}
+	
+	public function callCallback():Void //TODO Refactoring function name
+	{
+		callback();
 	}
 	
 	public function enabled(val:Bool):Void
