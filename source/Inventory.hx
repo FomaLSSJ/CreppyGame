@@ -36,6 +36,11 @@ class Inventory
 			items.push(inventory[i].name);
 		}
 		
-		return items.join(",");
+		if (items.length == 0)
+		{
+			return "nothing.";
+		}
+		
+		return items.join(", ") + ".";
 	}
 }

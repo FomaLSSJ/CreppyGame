@@ -23,7 +23,7 @@ class Lamp extends FlxSprite
 		
 		blend = BlendMode.SCREEN;
 		
-		var timerOff:FlxTimer = new FlxTimer().start(random.int(1, 3), onTimerOff, 1);
+		onTimerOn(null);
 	}
 	
 	override public function draw():Void

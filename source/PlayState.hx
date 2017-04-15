@@ -120,11 +120,6 @@ class PlayState extends FlxState
 			light.y = Reg.player.y + (Reg.player.height / 2);
 		}
 		
-		if (message != null)
-		{
-			message.pos(Reg.player.x + (Reg.player.width / 2), Reg.player.y + (Reg.player.height / 2));
-		}
-		
 		if (Reg.player != null && inventory != null && message != null)
 		{
 			if (!keyPress && !Reg.player.movingDisable)
@@ -235,10 +230,10 @@ class PlayState extends FlxState
 		add(spriteGroup);
 		add(Reg.player);
 		add(light);
-		add(message);
 		add(lampGroup);
 		add(darkness);
 		add(effect);
+		add(message);
 		
 		setRoom("room00", 5);
 		
@@ -382,6 +377,8 @@ class PlayState extends FlxState
 	
 	private function activeSprite(p:Player, s:Sprite):Void
 	{
+		// TODO need optimize effect
+		/*
 		if (p.overlaps(s) && s.active)
 		{
 			if (!p.blured)
@@ -396,5 +393,6 @@ class PlayState extends FlxState
 				effect.blur(3, 3, 2);
 			}
 		}
+		*/
 	}
 }

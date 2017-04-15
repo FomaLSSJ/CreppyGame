@@ -14,24 +14,27 @@ class MenuState extends FlxState
 	{
 		super.create();
 		
+		var data:Localized = new Localized();
+		Reg.localized = data.get().US;
+		
 		FlxG.camera.fade(FlxColor.BLACK, 0.33, true);
 		FlxG.mouse.visible = true;
 		
-		var verNum:FlxText = new FlxText(0, 0, 0, "ver. 0.9.0");
+		var verNum:FlxText = new FlxText(0, 0, 0, "ver. 0.9.2");
 		verNum.x = FlxG.width - (verNum.width + 8);
 		verNum.y = 8;
 		
-		var titleText:FlxText = new FlxText(0, 0, 0, "- Suspense -", 32);
+		var titleText:FlxText = new FlxText(0, 0, 0, Reg.localized.DATA.MENU.TITLE, 32);
 		titleText.x = (FlxG.width - titleText.width) / 2;
 		titleText.y = (FlxG.height - titleText.height) / 2 - 32;
 		titleText.setFormat(null, 32, FlxColor.BLACK);
 		titleText.setBorderStyle(FlxTextBorderStyle.OUTLINE, FlxColor.WHITE, 1);
 		
-		var hintText:FlxText = new FlxText(0, 0, 0, "Wow. Such harror, much survivar!");
+		var hintText:FlxText = new FlxText(0, 0, 0, Reg.localized.DATA.MENU.DESCRIPTION);
 		hintText.x = (FlxG.width - hintText.width) / 2;
 		hintText.y = (FlxG.height - hintText.height) / 2;
 		
-		var playButton:FlxButton = new FlxButton(0, 0, "New Game", onPlay);
+		var playButton:FlxButton = new FlxButton(0, 0, Reg.localized.DATA.MENU.NEW_GAME, onPlay);
 		playButton.x = (FlxG.width - playButton.width) / 2;
 		playButton.y = FlxG.height - 32;
 		

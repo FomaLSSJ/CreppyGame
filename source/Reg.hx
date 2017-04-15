@@ -9,6 +9,8 @@ import flixel.util.FlxSave;
  */
 class Reg
 {
+	public static var localized:Dynamic = null;
+	
 	public static var player:Player = null;
 	/**
 	 * Generic levels Array that can be used for cross-state stuff.
